@@ -4,6 +4,16 @@ namespace JobEngine.SqlServer.Commons;
 
 public static class IDbCommandExtensions
 {
+    public static IDbCommand SetCommandText(this IDbCommand dbCommand, string commandText)
+    {
+        ArgumentNullException.ThrowIfNull(dbCommand);
+        ArgumentNullException.ThrowIfNull(commandText);
+
+        dbCommand.CommandText = commandText;
+
+        return dbCommand;
+    }
+
     public static IDbCommand AddParameter(this IDbCommand dbCommand,
                                           string parameterName,
                                           object? value,

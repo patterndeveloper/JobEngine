@@ -20,4 +20,20 @@ public static class SqlHelper
 
     SELECT CAST(SCOPE_IDENTITY() AS BIGINT);"
     ;
+
+
+    public const string InsertState = @"
+
+    INSERT INTO [State] ([JobId], [Name], [Reason], [Data], [CreatedAt])
+    VALUES (@JobId, @Name, @Reason, @Data, @CreatedAt);
+
+    DECLARE @StateId BIGINT;
+    SET @StateId = CAST(SCOPE_IDENTITY() AS BIGINT);
+    
+    UPDATE [Job]
+    SET [CurrentStateId] = @StateId
+       ,[CurrentStateName] = @Name
+    WHERE [Id] = @JobId;
+
+    ";
 }

@@ -30,6 +30,22 @@ public class SqlStorage : IStorage
     }
 
 
+    public TResult UseTransaction<TContext, TResult>(Func<IDbConnection, IDbTransaction, TContext, TResult> func, TContext context)
+    {
+        var sqlConnection = CreateAndOpen();
+        using var sqlTransaction = sqlConnection.BeginTransaction();
+
+        try
+        {
+            return func(sqlConnection, sqlTransaction, context);
+        }
+        finally
+        {
+            sqlConnection?.Close();
+        }
+    }
+
+
     private IDbConnection CreateAndOpen()
     {
         IDbConnection sqlConnection = default!;
@@ -38,7 +54,7 @@ public class SqlStorage : IStorage
         {
             sqlConnection = new SqlConnection(_sqlServerOption.ConnectionString);
 
-            if(sqlConnection.State == ConnectionState.Closed)
+            if (sqlConnection.State == ConnectionState.Closed)
             {
                 sqlConnection.Open();
             }
