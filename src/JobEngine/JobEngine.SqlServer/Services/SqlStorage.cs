@@ -30,20 +30,41 @@ public class SqlStorage : IStorage
     }
 
 
-    public TResult UseTransaction<TContext, TResult>(Func<IDbConnection, IDbTransaction, TContext, TResult> func, TContext context)
+    public TResult UseTransaction<TContext, TResult>(Func<IDbTransaction, IDbConnection, TContext, TResult> func, TContext context)
     {
-        var sqlConnection = CreateAndOpen();
-        using var sqlTransaction = sqlConnection.BeginTransaction();
+        return UseConnection((dbConnection, context) =>
+        {
+            TResult result = default!;
+            using var dbTransaction = dbConnection.BeginTransaction();
 
-        try
-        {
-            return func(sqlConnection, sqlTransaction, context);
-        }
-        finally
-        {
-            sqlConnection?.Close();
-        }
+            try
+            {
+                result = func(dbTransaction, dbConnection, context);
+                dbTransaction.Commit();
+            }
+            catch (Exception ex)
+            {
+                if(dbTransaction.Connection is not null)
+                {
+                    dbTransaction.Rollback();
+                }
+                throw;
+            }
+
+            return result;
+        }, context);
     }
+
+
+    public void UseTransaction<TContext> (Action<IDbTransaction, IDbConnection, TContext> func, TContext context)
+    {
+        UseTransaction((dbTransaction, dbConnection, context) =>
+        {
+            func(dbTransaction, dbConnection, context);
+            return true;
+        }, context);
+    }
+
 
 
     private IDbConnection CreateAndOpen()
