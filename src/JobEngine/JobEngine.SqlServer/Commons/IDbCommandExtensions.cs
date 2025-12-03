@@ -25,7 +25,7 @@ public static class IDbCommandExtensions
         var parameter = dbCommand.CreateParameter();
 
         parameter.ParameterName = parameterName;
-        parameter.Value = value;
+        parameter.Value = value ?? DBNull.Value;
         parameter.DbType = dbType;
 
         dbCommand.Parameters.Add(parameter);

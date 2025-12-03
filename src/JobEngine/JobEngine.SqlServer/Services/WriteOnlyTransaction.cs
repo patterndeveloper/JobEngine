@@ -22,11 +22,11 @@ public class WriteOnlyTransaction : IWriteOnlyTransaction
     public void SetJobState(long jobId, State state)
     {
         Action<IDbCommand> commandAction = dbCommand => dbCommand.SetCommandText(SqlHelper.InsertState)
-                                                               .AddParameter("@JobId", state.JobId, DbType.Int64)
-                                                               .AddParameter("@Name", state.JobState.ToString(), DbType.String)
-                                                               .AddParameter("@Reason", state.Reason, DbType.String)
-                                                               .AddParameter("@Data", state.Data, DbType.String)
-                                                               .AddParameter("@CreatedAt", state.CreatedAt, DbType.DateTime);
+                                                                 .AddParameter("@JobId", state.JobId, DbType.Int64)
+                                                                 .AddParameter("@Name", state.JobState.ToString(), DbType.String)
+                                                                 .AddParameter("@Reason", state.Reason, DbType.String)
+                                                                 .AddParameter("@Data", state.Data, DbType.String)
+                                                                 .AddParameter("@CreatedAt", state.CreatedAt, DbType.DateTime);
 
         AddCommand(_jobCommands, jobId, commandAction);
     }
@@ -95,7 +95,23 @@ public class WriteOnlyTransaction : IWriteOnlyTransaction
                 }
             }
 
+
+            foreach(var setCommands in context._setCommands.Values)
+            {
+                foreach(var setCommandAction in setCommands)
+                {
+                    using var command = dbConnection.CreateCommand();
+                    setCommandAction(command);
+
+                    sqlCommandBatch.AddDbCommand(command);
+                }
+            }
+
             sqlCommandBatch.ExecuteNonQuery();
         }, this);
+    }
+
+    public void Dispose()
+    {
     }
 }

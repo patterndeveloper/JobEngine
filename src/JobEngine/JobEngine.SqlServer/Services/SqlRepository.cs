@@ -35,4 +35,10 @@ public class SqlRepository : IRepository
             return result;
         }, job);
     }
+
+
+    public IWriteOnlyTransaction CreateWriteOnlyTransaction()
+    {
+        return new WriteOnlyTransaction(_sqlStorage);
+    }
 }

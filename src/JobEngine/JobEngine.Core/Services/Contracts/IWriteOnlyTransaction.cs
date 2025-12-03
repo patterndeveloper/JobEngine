@@ -2,7 +2,7 @@
 
 namespace JobEngine.SqlServer.Services
 {
-    public interface IWriteOnlyTransaction
+    public interface IWriteOnlyTransaction : IDisposable
     {
         void SetJobState(long jobId, State state);
 

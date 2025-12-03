@@ -7,9 +7,21 @@ namespace JobEngine.Core.StateHandlings;
 public class StateContext
 {
     public long JobId { get; set; }
-    public State FromState { get; set; } = default!;
+    public State? FromState { get; set; } = default!;
     public State ToState { get; set; } = default!;
     public IWriteOnlyTransaction WriteOnlyTransaction { get; set; } = default!;
+
+
+    public StateContext(long jobId,
+                        State? fromState,
+                        State toState,
+                        IWriteOnlyTransaction writeOnlyTransaction)
+    {
+        JobId = jobId;
+        FromState = fromState;
+        ToState = toState;
+        WriteOnlyTransaction = writeOnlyTransaction;
+    }
 }
 
 
@@ -20,7 +32,7 @@ public class StateMachine : IStateMachine
 
     public StateMachine()
     {
-        _stateHandlers.Add(JobState.Scheduled, []);
+        _stateHandlers.Add(JobState.Scheduled, [new ScheduledStateHandler()]);
     }
 
 

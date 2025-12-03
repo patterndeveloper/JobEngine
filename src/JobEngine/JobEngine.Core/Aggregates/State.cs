@@ -8,4 +8,18 @@ public class State
     public string? Reason { get; set; }
     public string? Data { get; set; }
     public DateTime CreatedAt { get; set; }
+
+
+    public State(long jobId,
+                 JobState jobState,
+                 string? reason,
+                 string? data,
+                 DateTime createdAt)
+    {
+        JobId = jobId;
+        JobState = jobState;
+        Reason = reason;
+        Data = data;
+        CreatedAt = createdAt;
+    }
 }
